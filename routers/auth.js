@@ -5,6 +5,12 @@ var generatePassword = require("password-generator");
 const bcrypt = require("bcryptjs");
 const sendResetLink = require("../config/sendEmail");
 const jwt = require("jsonwebtoken");
+const Vonage = require("@vonage/server-sdk");
+
+const vonage = new Vonage({
+  apiKey: "51a184b4",
+  apiSecret: "IscxhsC0MkduX4FK",
+});
 
 const privateKey = require("../config/keys").privateKey;
 
@@ -82,6 +88,30 @@ router.post("/login", (req, res) => {
     .catch((err) => {
       console.log(err);
     });
+});
+
+router.post("/sms", (req, res) => {
+  console.log("hello");
+
+  const from = "Vonage APIs";
+  const to = "918550938904";
+  const text = "A text message sent using the Vonage SMS API";
+
+  vonage.message.sendSms(from, to, text, (err, responseData) => {
+    if (err) {
+      console.log(err);
+    } else {
+      if (responseData.messages[0]["status"] === "0") {
+        console.log("Message sent successfully.");
+      } else {
+        console.log(
+          `Message failed with error: ${responseData.messages[0]["error-text"]}`
+        );
+      }
+    }
+  });
+
+  res.status(400).json({ msg: " hello!" });
 });
 
 module.exports = router;
